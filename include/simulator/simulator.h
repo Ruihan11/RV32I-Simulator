@@ -159,19 +159,25 @@ private:
   struct ExecuteRegister {
     bool bubble;
     uint32_t stall;
-
+    uint32_t rd_ID;
     uint32_t pc;
     Instruction inst;
     int32_t op1;
     int32_t op2;
     bool write_reg;
     uint32_t dest_reg;
+    
     // output of execute stage
     int32_t out;
+
     bool write_mem;
     bool read_unsigned_mem;
     bool read_signed_mem;
     uint32_t mem_len;
+
+    bool jump_pc;
+    uint32_t jump_addr;
+
   } e_reg, e_reg_new;
 
   // can change according your need
@@ -186,6 +192,8 @@ private:
     int32_t out;
     bool write_reg;
     uint32_t dest_reg;
+    bool jump_pc;
+    uint32_t jump_addr;
   } m_reg, m_reg_new;
 
   // can change according your need

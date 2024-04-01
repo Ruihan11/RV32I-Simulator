@@ -632,7 +632,8 @@ void Simulator::excecute() {
   bool read_unsigned_mem = false;
   bool write_mem = false;
   bool write_reg = false;
-
+  bool jump_pc = false;
+  uint32_t jump_addr = 0;
   // printRegAll();
 
   switch (instruction_name)
@@ -653,34 +654,42 @@ void Simulator::excecute() {
 
 //jump and link  2  
   case JAL: 
+    jump_pc = true;
     write_reg = true;
     output = pc + 4;
-    this->pc = pc + offset;
+    jump_addr = pc + offset;
     break;
   case JALR:
+    jump_pc = true;
     write_reg = true;
     output = pc + 4;
-    this->pc = (op1 + offset)&(~(uint32_t(1))); //remove last bit
+    jump_addr = (op1 + offset)&(~(uint32_t(1))); //remove last bit
     break;
 
 //jump but no link 6
   case BEQ: 
-    this->pc = (op1 == op2) ? (pc + offset) : this->pc;
+    jump_pc = true;
+    jump_addr = (op1 == op2) ? (pc + offset) : pc + 4;
     break;
   case BNE:
-    this->pc = (op1 != op2) ? (pc + offset) : this->pc;  
+    jump_pc = true;
+    jump_addr = (op1 != op2) ? (pc + offset) : pc + 4;  
     break;
   case BLT:
-    this->pc = (op1 <op2) ? (pc + offset) : this->pc;
+    jump_pc = true;
+    jump_addr = (op1 <op2) ? (pc + offset) : pc + 4;
     break;
   case BGE:
-    this->pc = (op1 >= op2) ? (pc + offset) : this->pc;
+    jump_pc = true;
+    jump_addr = (op1 >= op2) ? (pc + offset) : pc + 4;
     break;
   case BLTU:
-    this->pc = (op1_unsigned < op2_unsigned) ? (pc + offset) : this->pc;
+    jump_pc = true;
+    jump_addr = (op1_unsigned < op2_unsigned) ? (pc + offset) : pc + 4;
     break;
   case BGEU:
-    this->pc = (op1_unsigned >= op2_unsigned) ? (pc + offset) : this->pc;
+    jump_pc = true;
+    jump_addr = (op1_unsigned >= op2_unsigned) ? (pc + offset) : pc + 4;
     break;
   
 //load 5
@@ -832,7 +841,11 @@ void Simulator::excecute() {
   this->e_reg_new.read_unsigned_mem = read_unsigned_mem;
   this->e_reg_new.write_mem = write_mem;
   this->e_reg_new.write_reg = write_reg;
-
+  this->e_reg_new.rd_ID=this->d_reg.rd_ID;
+  if (jump_pc){
+    this->e_reg_new.jump_addr= jump_addr;
+    this->e_reg_new.jump_pc= jump_pc;
+  }
 
 }
 
@@ -852,6 +865,8 @@ void Simulator::memory_access() {
   uint32_t read_unsigned_mem_out = 0;
   int32_t read_signed_mem_out = 0;
 
+
+
   if (read_unsigned_mem){
     switch (byte_len)
     {
@@ -865,10 +880,10 @@ void Simulator::memory_access() {
       this->m_reg_new.out=uint32_t(this->memory->get_int(output));
       break;
     default:
-      error("Cannot read unsigned memory",this->pc);
+      error("Cannot read unsigned memory",pc);
     }
     this->m_reg_new.write_reg = read_unsigned_mem;
-    this->m_reg_new.dest_reg = this->d_reg.rd_ID;
+    this->m_reg_new.dest_reg = this->e_reg.rd_ID;
   }
   
   if (read_signed_mem){
@@ -884,10 +899,10 @@ void Simulator::memory_access() {
       this->m_reg_new.out=int32_t(this->memory->get_int(output));
       break;
     default:
-      error("Cannot read signed memory",this->pc);
+      error("Cannot read signed memory",pc);
     }
     this->m_reg_new.write_reg = read_signed_mem;
-    this->m_reg_new.dest_reg = this->d_reg.rd_ID;
+    this->m_reg_new.dest_reg = this->e_reg.rd_ID;
 
   }
   
@@ -904,7 +919,7 @@ void Simulator::memory_access() {
       this->memory->set_int(output,uint32_t(op2));
       break;
     default:
-      error("Cannot write memory",this->pc);
+      error("Cannot write memory",pc);
     }
   }
 
@@ -919,8 +934,14 @@ void Simulator::memory_access() {
     this->m_reg_new.dest_reg = this->d_reg.rd_ID; //target register
   }
 
+  if (this->e_reg.jump_pc){
+    this->m_reg_new.jump_addr= e_reg.jump_addr;
+    this->m_reg_new.jump_pc= e_reg.jump_pc;
+  }
+
+
   if(pc == this->breakpoint){
-    printf("Memory access at 0x%08X\n",this->pc-4);
+    printf("Memory access at 0x%08X\n",pc);
     printf("RU %1d output 0x%08X from 0x%08X\n",read_unsigned_mem,read_unsigned_mem_out,output);
     printf("RS %1d output 0x%08X from 0x%08X\n",read_signed_mem,read_signed_mem_out,output);
     printf("WM %1d input  0x%08X at   0x%08X\n",write_mem,op1,output);
@@ -937,11 +958,7 @@ void Simulator::write_back() {
 
   if (this->m_reg.write_reg){ this -> reg[this->m_reg.dest_reg] = this->m_reg.out;}
 
-
-  // if (pc == this->breakpoint) {
-  //   printRegAll();
-  //   printf("\n-------------WriteDone-------------\n");
-  // }
+  if (this->m_reg.jump_pc){ this -> pc = this->m_reg.jump_addr;}
 
 }
 
@@ -959,10 +976,15 @@ int32_t Simulator::handle_system_call(int32_t a0, int32_t a7) {
   else if (a7==1){printf("%c",char(a0));}
   else if (a7==2){printf("%d",a0);}
   else if (a7==3){exit(EXIT_SUCCESS);}
-  else if (a7==4){;}
-  else if (a7==5){;}
-
-  else {error("Undefined a7 during ECALL",this->pc-4);}
+  // else if (a7==4){char ch;ch=std::cin.get();}
+  // else if (a7==5){long long num;
+    //               std :: cin >>num;
+    //               if (std::cin.fail()) {
+    //                 std::cout << "Input error: please enter a valid number." << std::endl;
+    //                 return 1;
+    //               }
+    // }
+  else {error("Undefined a7 during ECALL",this->d_reg.pc);}
   return 0; }
 
 
@@ -1135,7 +1157,8 @@ do {
         std::cout << std::bitset<8>((this->memory->get_int(this->pc-4) >> (i * 8)) & 0xFF) << (i > 0 ? " " : "");}
         std::cout << std::endl;
     }
-   else{
+    
+    else{
     printf("Please pay attention on the FORMAT...\n");
    }
 
@@ -1183,7 +1206,7 @@ void Simulator::mainloop(){
 
 void Simulator::simulatePipeline(){
   
-
+  // pipelineInit();
 
 
 }
