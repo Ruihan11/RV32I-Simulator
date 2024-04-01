@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -Wall CMakeFiles/Simulator.dir/src/main.cpp.o CMakeFiles/Simulator.dir/src/simulator.cpp.o CMakeFiles/Simulator.dir/src/memory_manager.cpp.o -o Simulator 
