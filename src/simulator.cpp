@@ -138,6 +138,7 @@ else{while(true)mainloop();}
 
 // update pc and f_reg_new
 void Simulator::fetch() {
+
   //check fetch addr
   if(this->pc % 2 != 0){
     error("Wrong fetching addr",this->pc);
@@ -157,17 +158,28 @@ void Simulator::fetch() {
     printf("-------------Fetch_Done------------\n");
   }
 
-
+  // this->f_reg_new.stall = false;
+  // this->f_reg_new.bubble = false;
   this->f_reg_new.inst=inst;
   this->f_reg_new.len=inst_len;
   this->f_reg_new.pc=this->pc; //this instruction
   this->pc=this->pc + inst_len; //next instruction
+  
 
 
 }
 
 
 void Simulator::decode() {
+
+// if (this->f_reg.stall) {
+//     this->pc = this->pc - 4;
+//     return;
+//   }
+//   if (this->f_reg.bubble || this->f_reg.inst == 0) {
+//     this->d_reg_new.bubble = true;
+//     return;
+//   }
 
 uint32_t inst               = f_reg.inst;
 uint32_t pc                 = f_reg.pc;
@@ -601,20 +613,31 @@ op2(rs2 or imm), dest(dst), and offset(branch imm)
     printf("-------------Decode_Done------------\n");
   }
 
+  // this->d_reg_new.stall = false;
+  // this->d_reg_new.bubble = false;
   this->d_reg_new.rs1_ID  = rs1;
   this->d_reg_new.rs2_ID  = rs2;
   this->d_reg_new.rd_ID   = rd;
   this->d_reg_new.inst = instruction_name;
   this->d_reg_new.pc   = pc;
 
-}else{
-  error("NOT 32-bit instruction",f_reg.pc);}
+}
+else if (pc == 0){return;}
+else{error("NOT 32-bit instruction",f_reg.pc);}
 
 }
 
 // execute instruction, deal with bubble and stall, check hazard and forward
 // data update pipeline register
 void Simulator::excecute() {
+  // if (this->d_reg.stall) {
+  //   this->e_reg_new.bubble = true;
+  //   return;
+  // }
+  // if (this->d_reg.bubble) {
+  //   this->e_reg_new.bubble = true;
+  //   return;
+  // }
 
   //the following are register values loaded
   uint32_t pc    = this->d_reg.pc;
@@ -649,7 +672,8 @@ void Simulator::excecute() {
     break;
   case ECALL:
     write_reg = true;
-    output = handle_system_call(this->reg[a0],this->reg[a7]);
+    // output = handle_system_call(this->reg[a0],this->reg[a7]);
+    output = handle_system_call(op1,op2);
     break;
 
 //jump and link  2  
@@ -821,16 +845,18 @@ void Simulator::excecute() {
     error("Instruction Unfound in execution",pc);
   }
 
-  if(pc == this->breakpoint){
-    printf("pc       0x%08X\n",pc);
-    printf("op1      0x%08X 0b%-10d\n",op1,op1);
-    printf("op2      0x%08X 0b%-10d\n",op2,op2);
-    printf("dest     0x%08X 0b%-10d\n",rd,rd);
-    printf("offset   0x%08X 0b%-10d\n",offset,offset);
-    printf("output   0x%08X 0b%-10d\n",output,output);
-    printf("--------------Exe_Done-------------\n");
-  }
-
+  // if(pc == this->breakpoint){
+  //   printf("pc       0x%08X\n",pc);
+  //   printf("op1      0x%08X 0b%-10d\n",op1,op1);
+  //   printf("op2      0x%08X 0b%-10d\n",op2,op2);
+  //   printf("dest     0x%08X 0b%-10d\n",rd,rd);
+  //   printf("offset   0x%08X 0b%-10d\n",offset,offset);
+  //   printf("output   0x%08X 0b%-10d\n",output,output);
+  //   printf("--------------Exe_Done-------------\n");
+  // }
+  
+  // this->e_reg_new.stall = false;
+  // this->e_reg_new.bubble = false;
   this->e_reg_new.pc=pc;
   this->e_reg_new.inst=instruction_name;
   this->e_reg_new.mem_len=byte_len;
@@ -851,6 +877,15 @@ void Simulator::excecute() {
 
 // memory access, deal with bubble and stall
 void Simulator::memory_access() {
+  //  if (this->e_reg.stall) {
+
+  //   return;
+  // }
+  // if (this->e_reg.bubble) {
+
+  //   this->m_reg_new.bubble = true;
+  //   return;
+  // }
   uint32_t pc = this->e_reg.pc;
   Instruction instruction_name = this->e_reg.inst;
   uint32_t byte_len = this->e_reg.mem_len;
@@ -939,26 +974,33 @@ void Simulator::memory_access() {
     this->m_reg_new.jump_pc= e_reg.jump_pc;
   }
 
+  // this->m_reg_new.stall = false;
 
-  if(pc == this->breakpoint){
-    printf("Memory access at 0x%08X\n",pc);
-    printf("RU %1d output 0x%08X from 0x%08X\n",read_unsigned_mem,read_unsigned_mem_out,output);
-    printf("RS %1d output 0x%08X from 0x%08X\n",read_signed_mem,read_signed_mem_out,output);
-    printf("WM %1d input  0x%08X at   0x%08X\n",write_mem,op1,output);
-    printf("WR %1d input  0x%08X\n",write_reg,rd);
-    printf("\n-------------Memo_Done-------------\n");
+  // if(pc == this->breakpoint){
+  //   printf("Memory access at 0x%08X\n",pc);
+  //   printf("RU %1d output 0x%08X from 0x%08X\n",read_unsigned_mem,read_unsigned_mem_out,output);
+  //   printf("RS %1d output 0x%08X from 0x%08X\n",read_signed_mem,read_signed_mem_out,output);
+  //   printf("WM %1d input  0x%08X at   0x%08X\n",write_mem,op1,output);
+  //   printf("WR %1d input  0x%08X\n",write_reg,rd);
+  //   printf("\n-------------Memo_Done-------------\n");
     
-    }
+  //   }
 
 }
 // write result to register, deal with bubble and stall
 // check for data hazard and forward data
 // update pipeline register
 void Simulator::write_back() {
+  // if (this->m_reg.stall) {
+  //   return;
+  // }
+  // if (this->m_reg.bubble) {
+  //   return;
+  // }
 
   if (this->m_reg.write_reg){ this -> reg[this->m_reg.dest_reg] = this->m_reg.out;}
-
   if (this->m_reg.jump_pc){ this -> pc = this->m_reg.jump_addr;}
+
 
 }
 
@@ -976,14 +1018,23 @@ int32_t Simulator::handle_system_call(int32_t a0, int32_t a7) {
   else if (a7==1){printf("%c",char(a0));}
   else if (a7==2){printf("%d",a0);}
   else if (a7==3){exit(EXIT_SUCCESS);}
-  // else if (a7==4){char ch;ch=std::cin.get();}
-  // else if (a7==5){long long num;
-    //               std :: cin >>num;
-    //               if (std::cin.fail()) {
-    //                 std::cout << "Input error: please enter a valid number." << std::endl;
-    //                 return 1;
-    //               }
-    // }
+  else if (a7==4){
+    char ch;
+    if(scanf("%c", &ch)==1) {
+      return ch;
+    }
+    
+    else error("char read error",this->pc);
+    }
+  else if (a7==5){
+    long long int lld;
+    if(scanf("%lld", &lld)==1) {
+      return lld;
+      // printf("0x%08X\n",this->reg[10]);
+      
+    }
+    else error("lld read error",this->pc);
+    }
   else {error("Undefined a7 during ECALL",this->d_reg.pc);}
   return 0; }
 
@@ -1205,8 +1256,59 @@ void Simulator::mainloop(){
 }
 
 void Simulator::simulatePipeline(){
+    memset(&this->f_reg, 0, sizeof(this->f_reg));
+    memset(&this->f_reg_new, 0, sizeof(this->f_reg_new));
+    memset(&this->d_reg, 0, sizeof(this->d_reg));
+    memset(&this->d_reg_new, 0, sizeof(this->d_reg_new));
+    memset(&this->e_reg, 0, sizeof(this->e_reg));
+    memset(&this->e_reg_new, 0, sizeof(this->e_reg_new));
+    memset(&this->m_reg, 0, sizeof(this->m_reg));
+    memset(&this->m_reg_new, 0, sizeof(this->m_reg_new));
+    this->f_reg.bubble = true;
+    this->d_reg.bubble = true;
+    this->e_reg.bubble = true;
+    this->m_reg.bubble = true;
+
+  while(true){
+    this->reg[zero]=0; 
+    // check stack overflow
+    if (reg[sp]<(this->stack_base-this->max_stack_size)){
+    printf("-----------------------------------\n");
+    printf("sp : 0x%X\n",reg[sp]);
+    error("stack overflow - sp is under 0x0x7FC00000",this->pc);}
+
+    //5-stage streamline flag refresh
+    
+
+    this->fetch();
+    // printf("fpc       0x%08X\n",f_reg.pc);
+    this->decode();
+    // printf("dpc       0x%08X\n",d_reg.pc);
+    this->excecute();
+    // printf("epc       0x%08X\n",e_reg.pc);
+    this->memory_access();
+    // printf("mpc       0x%08X\n",m_reg.pc);
+    this->write_back();
+
+
+    if(this->f_reg_new.stall==0) this->f_reg = this->f_reg_new;
+    else this->f_reg_new.stall --;
+
+    if(this->d_reg_new.stall==0) this->d_reg = this->d_reg_new;
+    else this->d_reg_new.stall --;
+
+    this->e_reg=this->e_reg_new;
+    this->m_reg=this->m_reg_new;
+
+    memset(&this->f_reg_new, 0, sizeof(this->f_reg_new));
+    memset(&this->d_reg_new, 0, sizeof(this->d_reg_new));
+    memset(&this->e_reg_new, 0, sizeof(this->e_reg_new));
+    memset(&this->m_reg_new, 0, sizeof(this->m_reg_new));
+
+
+  }
   
-  // pipelineInit();
+
 
 
 }

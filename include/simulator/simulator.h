@@ -118,6 +118,7 @@ public:
   uint32_t stack_base;
   uint32_t max_stack_size;
   MemoryManager* memory;
+  
 
   std::string command_line ="";
   std::stringstream pc_outstream;
@@ -134,6 +135,7 @@ private:
   // can change according your need
   struct FetchRegister {
     bool bubble;
+    
     uint32_t stall;
 
     uint32_t pc;
