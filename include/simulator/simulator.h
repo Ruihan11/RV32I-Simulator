@@ -109,7 +109,8 @@ public:
 
   bool single_step;
   bool dump_asm;
-
+  bool pipeline_mode;
+  
   uint32_t breakpoint;
   uint32_t pc;
   uint32_t reg[REGNUM];
@@ -209,6 +210,7 @@ private:
   void printRegAll();
   std::string instNumToString(int i);
   void simulateSingleStep();
+  void simulatePipeline();
   void copyReg();
   void mainloop();
   int32_t handle_system_call(int32_t a0, int32_t a7);

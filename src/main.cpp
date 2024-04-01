@@ -11,9 +11,10 @@ void load_elf_to_memory(ELFIO::elfio* reader, MemoryManager* memory);
 void printElfInfo(ELFIO::elfio *reader);
 
 char* elf_file = nullptr;
-bool pipe_check = 0;
 bool single_step = 0;
 bool dump_asm = 0;
+bool pipeline_mode = 0;
+
 uint32_t stack_base_addr = 0x80000000;
 uint32_t stack_size = 0x400000;
 MemoryManager memory;
@@ -46,6 +47,7 @@ int main(int argc, char** argv) {
   simulator.init_stack(stack_base_addr, stack_size);
   simulator.single_step=single_step;
   simulator.dump_asm=dump_asm;
+  simulator.pipeline_mode=pipeline_mode;
   simulator.simulate();
 
   return 0;
@@ -58,6 +60,7 @@ bool parse_params(int argc, char** argv) {
       switch (argv[i][1]) {
         case 's': single_step=1; break;
         case 'd': dump_asm=1; break;
+        case 'p': pipeline_mode=1; break;
         default: return false;
       }
       }
@@ -68,8 +71,9 @@ bool parse_params(int argc, char** argv) {
 void printUsage(){
   printf("============WRONG COMMAND==========\n");
   printf("./Simulator [rv32i elf] [-c]\n");
-  printf("[-c] : check pipeline status, developer used\n");
-  printf("[-s] : single step debugger, developer used\n");
+  printf("[-d] : dump memory and fetched asm text\n");
+  printf("[-s] : single-step debugger, developer used\n");
+  printf("[-p] : pipeline mode\n");
   printf("===================================\n");
 }
 

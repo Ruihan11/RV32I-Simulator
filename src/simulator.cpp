@@ -70,9 +70,9 @@ write back
   // main simulation loop
 
 
-if (single_step){
-  simulateSingleStep();
-}else{
+if (single_step){simulateSingleStep();}
+
+else if(dump_asm){
 
   std::ofstream outputFile("dump_asm.txt");//
   if (!outputFile.is_open()) {
@@ -129,6 +129,10 @@ std::cout << "Size of in32: " << sizeof(int32_t) << " byte(s)" << std::endl;
 
   outputFile.close();
 }
+
+else if(pipeline_mode){simulatePipeline();}
+
+else{while(true)mainloop();}
 
 }
 
@@ -1148,7 +1152,7 @@ void Simulator::copyReg(){
 }
 
 void Simulator::mainloop(){
-  this->reg[zero]=0; 
+    this->reg[zero]=0; 
     // check stack overflow
     if (reg[sp]<(this->stack_base-this->max_stack_size)){
       printf("-----------------------------------\n");
@@ -1175,5 +1179,12 @@ void Simulator::mainloop(){
     this->m_reg=this->m_reg_new;
     this->write_back();
     copyReg();
+}
+
+void Simulator::simulatePipeline(){
+  
+
+
+
 }
 
