@@ -86,7 +86,7 @@ else if(dump_asm){
     // check stack overflow
     if (reg[sp]<(this->stack_base-this->max_stack_size)){
       printf("-----------------------------------\n");
-      printf("sp : 0x%X\n",reg[sp]);
+      printf("sp : 0x%X\n",this->reg[sp]);
       error("stack overflow - sp is under 0x0x7FC00000",this->pc);}
 
 /* mem check : f_reg = 17->20 Bytes
@@ -646,7 +646,7 @@ void Simulator::excecute() {
   int32_t op2    = this->d_reg.op2;
   uint32_t op2_unsigned = uint32_t(op2);
   int32_t offset = this->d_reg.offset;
-  uint32_t rd    = this->d_reg.dest;
+  // uint32_t rd    = this->d_reg.dest;
   Instruction instruction_name = this->d_reg.inst;
   int32_t output = 0;
   int32_t byte_len = 0;
@@ -891,14 +891,14 @@ void Simulator::memory_access() {
   uint32_t byte_len = this->e_reg.mem_len;
   uint32_t op1= this->e_reg.op1;
   uint32_t op2= this->e_reg.op2;
-  uint32_t rd = 0;
+  // uint32_t rd = 0;
   bool read_unsigned_mem = this->e_reg.read_unsigned_mem;
   bool read_signed_mem = this->e_reg.read_signed_mem;
   bool write_mem = this->e_reg.write_mem;
   bool write_reg = this->e_reg.write_reg;
   int32_t output = this->e_reg.out;
-  uint32_t read_unsigned_mem_out = 0;
-  int32_t read_signed_mem_out = 0;
+  // uint32_t read_unsigned_mem_out = 0;
+  // int32_t read_signed_mem_out = 0;
 
 
 
@@ -959,7 +959,7 @@ void Simulator::memory_access() {
   }
 
   if (write_reg){ // only flag goes to register write back
-    rd = output;
+    // rd = output;
     this->m_reg_new.write_reg = write_reg;
     this->m_reg_new.inst=instruction_name;
     this->m_reg_new.op1=op1;
@@ -1169,18 +1169,14 @@ do {
     // check stack overflow
       if (reg[sp]<(this->stack_base-this->max_stack_size)){
         printf("-----------------------------------\n");
-        printf("sp : 0x%X\n",reg[sp]);
+        printf("sp : 0x%X\n",this->reg[sp]);
         error("stack overflow - sp is under 0x0x7FC00000",this->pc);}
 
-      //5-stage streamline flag refresh
-      memset(&this->f_reg, 0, sizeof(this->f_reg));
-      memset(&this->f_reg_new, 0, sizeof(this->f_reg_new));
-      memset(&this->d_reg, 0, sizeof(this->d_reg));
-      memset(&this->d_reg_new, 0, sizeof(this->d_reg_new));
-      memset(&this->e_reg, 0, sizeof(this->e_reg));
-      memset(&this->e_reg_new, 0, sizeof(this->e_reg_new));
-      memset(&this->m_reg, 0, sizeof(this->m_reg));
-      memset(&this->m_reg_new, 0, sizeof(this->m_reg_new));
+      //flag refresh
+      this->f_reg_new = {};
+      this->d_reg_new = {};
+      this->e_reg_new = {};
+      this->m_reg_new = {};
       command_line = "";
       // uint32_t currentPC = this->pc;
       copyReg();
@@ -1230,18 +1226,14 @@ void Simulator::mainloop(){
     // check stack overflow
     if (reg[sp]<(this->stack_base-this->max_stack_size)){
       printf("-----------------------------------\n");
-      printf("sp : 0x%X\n",reg[sp]);
+      printf("sp : 0x%X\n",this->reg[sp]);
       error("stack overflow - sp is under 0x0x7FC00000",this->pc);}
 
-    //5-stage streamline flag refresh
-    memset(&this->f_reg, 0, sizeof(this->f_reg));
-    memset(&this->f_reg_new, 0, sizeof(this->f_reg_new));
-    memset(&this->d_reg, 0, sizeof(this->d_reg));
-    memset(&this->d_reg_new, 0, sizeof(this->d_reg_new));
-    memset(&this->e_reg, 0, sizeof(this->e_reg));
-    memset(&this->e_reg_new, 0, sizeof(this->e_reg_new));
-    memset(&this->m_reg, 0, sizeof(this->m_reg));
-    memset(&this->m_reg_new, 0, sizeof(this->m_reg_new));
+    this->f_reg_new = {};
+    this->d_reg_new = {};
+    this->e_reg_new = {};
+    this->m_reg_new = {};
+
 
     this->fetch();
     this->f_reg=this->f_reg_new;
@@ -1256,29 +1248,25 @@ void Simulator::mainloop(){
 }
 
 void Simulator::simulatePipeline(){
-    memset(&this->f_reg, 0, sizeof(this->f_reg));
-    memset(&this->f_reg_new, 0, sizeof(this->f_reg_new));
-    memset(&this->d_reg, 0, sizeof(this->d_reg));
-    memset(&this->d_reg_new, 0, sizeof(this->d_reg_new));
-    memset(&this->e_reg, 0, sizeof(this->e_reg));
-    memset(&this->e_reg_new, 0, sizeof(this->e_reg_new));
-    memset(&this->m_reg, 0, sizeof(this->m_reg));
-    memset(&this->m_reg_new, 0, sizeof(this->m_reg_new));
-    this->f_reg.bubble = true;
-    this->d_reg.bubble = true;
-    this->e_reg.bubble = true;
-    this->m_reg.bubble = true;
+    this->f_reg_new = {};
+    this->d_reg_new = {};
+    this->e_reg_new = {};
+    this->m_reg_new = {};
+
+    // this->f_reg.bubble = true;
+    // this->d_reg.bubble = true;
+    // this->e_reg.bubble = true;
+    // this->m_reg.bubble = true;
 
   while(true){
     this->reg[zero]=0; 
     // check stack overflow
     if (reg[sp]<(this->stack_base-this->max_stack_size)){
     printf("-----------------------------------\n");
-    printf("sp : 0x%X\n",reg[sp]);
+    printf("sp : 0x%X\n",this->reg[sp]);
     error("stack overflow - sp is under 0x0x7FC00000",this->pc);}
 
     //5-stage streamline flag refresh
-    
 
     this->fetch();
     // printf("fpc       0x%08X\n",f_reg.pc);
@@ -1291,25 +1279,21 @@ void Simulator::simulatePipeline(){
     this->write_back();
 
 
-    if(this->f_reg_new.stall==0) this->f_reg = this->f_reg_new;
-    else this->f_reg_new.stall --;
+    // if(this->f_reg_new.stall==0) this->f_reg = this->f_reg_new;
+    // else this->f_reg_new.stall --;
 
-    if(this->d_reg_new.stall==0) this->d_reg = this->d_reg_new;
-    else this->d_reg_new.stall --;
+    // if(this->d_reg_new.stall==0) this->d_reg = this->d_reg_new;
+    // else this->d_reg_new.stall --;
 
+    // this->e_reg=this->e_reg_new;
+    // this->m_reg=this->m_reg_new;
+    this->f_reg=this->f_reg_new;
+    this->d_reg=this->d_reg_new;
     this->e_reg=this->e_reg_new;
     this->m_reg=this->m_reg_new;
 
-    memset(&this->f_reg_new, 0, sizeof(this->f_reg_new));
-    memset(&this->d_reg_new, 0, sizeof(this->d_reg_new));
-    memset(&this->e_reg_new, 0, sizeof(this->e_reg_new));
-    memset(&this->m_reg_new, 0, sizeof(this->m_reg_new));
-
-
   }
   
-
-
 
 }
 
