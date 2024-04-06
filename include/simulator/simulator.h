@@ -110,7 +110,7 @@ public:
   bool single_step;
   bool dump_asm;
   bool pipeline_mode;
-  
+  bool history_mode;
   uint32_t breakpoint;
   uint32_t pc;
   uint32_t reg[REGNUM];
@@ -123,6 +123,8 @@ public:
   std::string command_line ="";
   std::stringstream pc_outstream;
   std::stringstream command_line_outstream;
+  
+
   
   Simulator(MemoryManager* memory);
   ~Simulator();
@@ -141,7 +143,7 @@ private:
     uint32_t pc;
     uint32_t inst;
     uint32_t len;
-  } f_reg, f_reg_new;
+  } f_reg, f_reg_new,f_reg_copy,f_reg_new_copy;
 
   // can change according your need
   struct DecodeRegister {
@@ -155,10 +157,11 @@ private:
     int32_t op2;
     uint32_t dest;
     int32_t offset;
-  } d_reg, d_reg_new;
+  } d_reg, d_reg_new,d_reg_copy,d_reg_new_copy;
 
   // can change according your need
   struct ExecuteRegister {
+    
     bool bubble;
     uint32_t stall;
     uint32_t rd_ID;
@@ -180,10 +183,11 @@ private:
     bool jump_pc;
     uint32_t jump_addr;
 
-  } e_reg, e_reg_new;
+  } e_reg, e_reg_new,e_reg_copy,e_reg_new_copy;
 
   // can change according your need
   struct MemoryRegister {
+
     bool bubble;
     uint32_t stall;
 
@@ -196,7 +200,7 @@ private:
     uint32_t dest_reg;
     bool jump_pc;
     uint32_t jump_addr;
-  } m_reg, m_reg_new;
+  } m_reg, m_reg_new,m_reg_copy,m_reg_new_copy;
 
   // can change according your need
   struct History {
@@ -223,7 +227,11 @@ private:
   void simulatePipeline();
   void copyReg();
   void mainloop();
+  void pipeloop();
   int32_t handle_system_call(int32_t a0, int32_t a7);
+  void pipelineSingleStep();
+  void printStageAll();
+  void copyRegBuffer();
 };
 
 #endif

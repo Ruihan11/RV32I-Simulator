@@ -5,6 +5,7 @@
 #include "simulator/memory_manager.h"
 #include "simulator/simulator.h"
 
+bool pipe= 0;
 bool parse_params(int argc, char** argv);
 void printUsage();
 void load_elf_to_memory(ELFIO::elfio* reader, MemoryManager* memory);
@@ -14,6 +15,7 @@ char* elf_file = nullptr;
 bool single_step = 0;
 bool dump_asm = 0;
 bool pipeline_mode = 0;
+bool history_mode = 0;
 
 uint32_t stack_base_addr = 0x80000000;
 uint32_t stack_size = 0x400000;
@@ -27,7 +29,8 @@ int main(int argc, char** argv) {
     printUsage();
     exit(-1);
   }
-
+  
+  // std::cout<<single_step<<pipeline_mode<<std::endl;
   // printf("loading <- ");
   elf_file = argv[1];
   // std::cout<<argv[1]<<std::endl;
@@ -48,6 +51,7 @@ int main(int argc, char** argv) {
   simulator.single_step=single_step;
   simulator.dump_asm=dump_asm;
   simulator.pipeline_mode=pipeline_mode;
+  simulator.history_mode=history_mode;
   simulator.simulate();
 
   return 0;
@@ -60,7 +64,8 @@ bool parse_params(int argc, char** argv) {
       switch (argv[i][1]) {
         case 's': single_step=1; break;
         case 'd': dump_asm=1; break;
-        case 'p': pipeline_mode=1; break;
+        case 'p': pipe=1; break;
+        case 'h': history_mode=1; break;
         default: return false;
       }
       }
@@ -73,7 +78,9 @@ void printUsage(){
   printf("./Simulator [rv32i elf] [-c]\n");
   printf("[-d] : dump memory and fetched asm text\n");
   printf("[-s] : single-step debugger, developer used\n");
+  printf("[-h] : pipeline mode\n");
   printf("[-p] : pipeline mode\n");
+  printf("[-p -s] : pipeline single step\n");
   printf("===================================\n");
 }
 
@@ -81,7 +88,7 @@ void printUsage(){
 // load elf file to memory
 void load_elf_to_memory(ELFIO::elfio* reader, MemoryManager* memory) {
   
-  FILE* dumpFile = fopen("dump", "wb");  //dump file to check the memo allocation
+  FILE* dumpFile = fopen("dump.txt", "wb");  //dump file to check the memo allocation
   
   ELFIO::Elf_Half seg_num = reader->segments.size();
   for (int i = 0; i < seg_num; ++i) {
@@ -116,10 +123,10 @@ void load_elf_to_memory(ELFIO::elfio* reader, MemoryManager* memory) {
       memory->set_byte(p, value);
 
       // Write the value to dump
-      fwrite(&value, sizeof(char), 1, dumpFile); 
+      if(dump_asm) fwrite(&value, sizeof(char), 1, dumpFile); 
     }
   }
-  fclose(dumpFile);
+  if(dump_asm) fclose(dumpFile);
 }
 
 //elf info print
