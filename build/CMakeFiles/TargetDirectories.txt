@@ -1,3 +1,0 @@
-/home/ruihan11/Documents/csc3050/P2/RV32I-Simulator/build/CMakeFiles/Simulator.dir
-/home/ruihan11/Documents/csc3050/P2/RV32I-Simulator/build/CMakeFiles/edit_cache.dir
-/home/ruihan11/Documents/csc3050/P2/RV32I-Simulator/build/CMakeFiles/rebuild_cache.dir
