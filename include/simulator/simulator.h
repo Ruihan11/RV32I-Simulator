@@ -111,6 +111,8 @@ public:
   bool dump_asm;
   bool pipeline_mode;
   bool history_mode;
+  bool branching;
+
   uint32_t breakpoint;
   uint32_t pc;
   uint32_t reg[REGNUM];
@@ -164,7 +166,8 @@ private:
     
     bool bubble;
     uint32_t stall;
-    uint32_t rd_ID;
+    uint32_t rs1_ID, rs2_ID,rd_ID;
+    int32_t offset;
     uint32_t pc;
     Instruction inst;
     int32_t op1;
@@ -190,7 +193,8 @@ private:
 
     bool bubble;
     uint32_t stall;
-
+    uint32_t rs1_ID, rs2_ID,rd_ID;
+    int32_t offset;
     uint32_t pc;
     Instruction inst;
     int32_t op1;
@@ -222,7 +226,7 @@ private:
   // int32_t handle_system_call(int32_t op1, int32_t op2);
 
   void printRegAll();
-  std::string instNumToString(int i);
+  std::string regNumToString(int i);
   void simulateSingleStep();
   void simulatePipeline();
   void copyReg();
@@ -232,6 +236,11 @@ private:
   void pipelineSingleStep();
   void printStageAll();
   void copyRegBuffer();
+  bool isExeBranch(Instruction inst);
+  bool isExeJump(Instruction inst);
+  std::string instToString(Instruction inst);
+  void flush_pipe();
+  bool isExeStore(Instruction inst);
 };
 
 #endif

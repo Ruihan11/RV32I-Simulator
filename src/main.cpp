@@ -5,7 +5,7 @@
 #include "simulator/memory_manager.h"
 #include "simulator/simulator.h"
 
-bool pipe= 0;
+// bool pipe= 0;
 bool parse_params(int argc, char** argv);
 void printUsage();
 void load_elf_to_memory(ELFIO::elfio* reader, MemoryManager* memory);
@@ -64,7 +64,7 @@ bool parse_params(int argc, char** argv) {
       switch (argv[i][1]) {
         case 's': single_step=1; break;
         case 'd': dump_asm=1; break;
-        case 'p': pipe=1; break;
+        case 'p': pipeline_mode=1; break;
         case 'h': history_mode=1; break;
         default: return false;
       }

@@ -70,7 +70,9 @@ write back
   // main simulation loop
 
 
-if (single_step&&pipeline_mode){pipelineSingleStep();}
+if (single_step&&pipeline_mode){
+
+  pipelineSingleStep();}
 
 else if (single_step){simulateSingleStep();}
 
@@ -170,8 +172,8 @@ void Simulator::fetch() {
     // printf("-------------Fetch_Done------------\n");
   }
 
-  // this->f_reg_new.stall = false;
-  // this->f_reg_new.bubble = false;
+  this->f_reg_new.stall = 0;
+  this->f_reg_new.bubble = false;
   this->f_reg_new.inst=inst;
   this->f_reg_new.len=inst_len;
   this->f_reg_new.pc=this->pc; //this instruction
@@ -184,19 +186,20 @@ void Simulator::fetch() {
 
 void Simulator::decode() {
 
-// if (this->f_reg.stall>0) {
-//   printf("decode stalled\n");
-//   this->pc = this->pc-4;return;}
+if (this->f_reg.stall>0) {
+  printf("decode stalled\n");
+  this->pc = this->pc-4;
+  return;}
 
-// if (this->f_reg.bubble) { //bubbled or getnothing
-//     printf("d_reg  bubbled by f_reg\n");
-//     this->d_reg_new.bubble = true;
-//     return;}
+if (this->f_reg.bubble) { //bubbled or getnothing
+    printf("d_reg  bubbled by f_reg\n");
+    this->d_reg_new.bubble = true;
+    return;}
 
-// if (this->f_reg.inst == 0) { //bubbled or getnothing
-//     printf("d_reg bubbled by empty fetch\n");
-//     this->d_reg_new.bubble = true;
-//     return;}
+if (this->f_reg.inst == 0) { //bubbled or getnothing
+    printf("d_reg bubbled by empty fetch\n");
+    this->d_reg_new.bubble = true;
+    return;}
 
 
 uint32_t inst               = f_reg.inst;
@@ -508,14 +511,13 @@ op2(rs2 or imm), dest(dst), and offset(branch imm)
   
 
   if (instType == "R"){
-    d_reg_new.dest = this->reg[rd];
-    d_reg_new.op1  = this->reg[rs1];
-    d_reg_new.op2  = this->reg[rs2];
-
+    d_reg_new.dest = rd;
+    d_reg_new.op1  = rs1;
+    d_reg_new.op2  = rs2;
     if(single_step|dump_asm){
-    rdName=instNumToString(rd);
-    rs1Name=instNumToString(rs1);
-    rs2Name=instNumToString(rs2);
+    rdName=regNumToString(rd);
+    rs1Name=regNumToString(rs1);
+    rs2Name=regNumToString(rs2);
     this->command_line=operName+"  "+rdName+", "+rs1Name+", "+rs2Name;
     printf("%s\n",this->command_line.c_str());
     this->command_line_outstream << std::setfill(' ')<< std::setw(20)<< std::left<<this->command_line<<"\n";
@@ -523,13 +525,13 @@ op2(rs2 or imm), dest(dst), and offset(branch imm)
 
   }
   else if (instType == "I"&&operName!="ECALL"){
-    d_reg_new.dest = this->reg[rd];
-    d_reg_new.op1  = this->reg[rs1];
+    d_reg_new.dest = rd;
+    d_reg_new.op1  = rs1;
     d_reg_new.offset  = imm_i;
-
+    rs2 = 0;
     if(single_step|dump_asm){
-    rdName=instNumToString(rd);
-    rs1Name=instNumToString(rs1);
+    rdName=regNumToString(rd);
+    rs1Name=regNumToString(rs1);
     this->command_line=operName+"  "+rdName+", "+rs1Name+", ";
     printf("%s 0x%08X 0b%d\n",this->command_line.c_str(),imm_i,imm_i);
     this->command_line_outstream << std::setfill(' ')<< std::setw(20)<< std::left<<this->command_line
@@ -538,8 +540,8 @@ op2(rs2 or imm), dest(dst), and offset(branch imm)
     }
   }
   else if (operName=="ECALL"){
-    d_reg_new.op1 = this->reg[a0];
-    d_reg_new.op2 = this->reg[a7];
+    d_reg_new.op1 = a0;
+    d_reg_new.op2 = a7;
     rs1=a0;
     rs2=a7;
     rd=a0;
@@ -548,14 +550,14 @@ op2(rs2 or imm), dest(dst), and offset(branch imm)
     printf("%s\n",this->command_line.c_str());}
     }
   else if (instType == "S"){
-    d_reg_new.op1  = this->reg[rs1];
-    d_reg_new.op2  = this->reg[rs2];
+    d_reg_new.op1  = rs1;
+    d_reg_new.op2  = rs2;
     d_reg_new.offset  = imm_s;
-
+    rd=0;
     if(single_step|dump_asm){
-    rdName=instNumToString(rd);
-    rs1Name=instNumToString(rs1);
-    rs2Name=instNumToString(rs2);
+    rdName=regNumToString(rd);
+    rs1Name=regNumToString(rs1);
+    rs2Name=regNumToString(rs2);
     this->command_line=operName+"  "+rs2Name+", (offset)"+rs1Name;
     printf("%s 0x%08X 0b%d\n",this->command_line.c_str(),imm_s,imm_s);
     this->command_line_outstream << std::setfill(' ')<< std::setw(20)<< std::left<<this->command_line
@@ -567,13 +569,13 @@ op2(rs2 or imm), dest(dst), and offset(branch imm)
 
   }
   else if (instType == "B"){
-    d_reg_new.op1  = this->reg[rs1];
-    d_reg_new.op2  = this->reg[rs2];
+    d_reg_new.op1  = rs1;
+    d_reg_new.op2  = rs2;
     d_reg_new.offset  = imm_b;
-
+    rd=0;
     if(single_step|dump_asm){
-    rs1Name=instNumToString(rs1);
-    rs2Name=instNumToString(rs2);
+    rs1Name=regNumToString(rs1);
+    rs2Name=regNumToString(rs2);
     this->command_line=operName+"  "+rs1Name+", "+rs2Name;
     printf("%s 0x%08X 0b%d\n",this->command_line.c_str(),imm_b,imm_b);
     this->command_line_outstream << std::setfill(' ')<< std::setw(20)<< std::left<<this->command_line
@@ -584,11 +586,11 @@ op2(rs2 or imm), dest(dst), and offset(branch imm)
     
   }
   else if (instType == "U"){
-    d_reg_new.dest = this->reg[rd];
+    d_reg_new.dest = rd;
     d_reg_new.offset  = imm_u;
-
+    rs1=0;rs2=0;
     if(single_step|dump_asm){
-    rdName=instNumToString(rd);
+    rdName=regNumToString(rd);
     this->command_line=operName+"  "+rdName;
     printf("%s 0x%08X 0b%d\n",this->command_line.c_str(),imm_u,imm_u);
     this->command_line_outstream << std::setfill(' ')<< std::setw(20) << std::left<<this->command_line
@@ -598,11 +600,11 @@ op2(rs2 or imm), dest(dst), and offset(branch imm)
     
   }
   else if (instType == "J"){
-    d_reg_new.dest = this->reg[rd];
+    d_reg_new.dest = rd;
     d_reg_new.offset  = imm_j;
-    
+    rs1=0;rs2=0;
     if(single_step|dump_asm){
-    rdName=instNumToString(rd);
+    rdName=regNumToString(rd);
     this->command_line=operName+"  "+rdName;
     printf("%s 0x%08X 0b%d\n",this->command_line.c_str(),imm_j,imm_j);
     this->command_line_outstream << std::setfill(' ')<< std::setw(20)<< std::left<<this->command_line
@@ -625,9 +627,8 @@ op2(rs2 or imm), dest(dst), and offset(branch imm)
     printf("-------------Decode_Done------------\n");
   }
 
-  // this->d_reg_new.stall = false;
-
-  // this->d_reg_new.bubble = false;
+  this->d_reg_new.stall = 0;
+  this->d_reg_new.bubble = false;
 
   this->d_reg_new.rs1_ID  = rs1;
   this->d_reg_new.rs2_ID  = rs2;
@@ -646,21 +647,21 @@ else{error("NOT 32-bit instruction",f_reg.pc);}
 // execute instruction, deal with bubble and stall, check hazard and forward
 // data update pipeline register
 void Simulator::excecute() {
-  // if (this->d_reg.stall>0) {
-  //   printf("Execute: Stall\n");
-  //   return;
-  // }
-  // if (this->d_reg.bubble) {
-  //   printf("e_reg bubbled by d_reg\n");
-  //   this->e_reg_new.bubble = true;
-  //   return;
-  // }
+  if (this->d_reg.stall>0) {
+    printf("Execute: Stall\n");
+    return;
+  }
+  if (this->d_reg.bubble) {
+    printf("e_reg bubbled by d_reg\n");
+    this->e_reg_new.bubble = true;
+    return;
+  }
 
   //the following are register values loaded
   uint32_t pc    = this->d_reg.pc;
-  int32_t op1    = this->d_reg.op1;
+  int32_t op1    = this->reg[this->d_reg.op1];
   uint32_t op1_unsigned = uint32_t(op1);
-  int32_t op2    = this->d_reg.op2;
+  int32_t op2    = this->reg[this->d_reg.op2];
   uint32_t op2_unsigned = uint32_t(op2);
   int32_t offset = this->d_reg.offset;
   // uint32_t rd    = this->d_reg.dest;
@@ -711,26 +712,32 @@ void Simulator::excecute() {
   case BEQ: 
     jump_pc = true;
     jump_addr = (op1 == op2) ? (pc + offset) : pc + 4;
+    this->branching = (op1 == op2) ? true : false;
     break;
   case BNE:
     jump_pc = true;
     jump_addr = (op1 != op2) ? (pc + offset) : pc + 4;  
+    this->branching = (op1 != op2) ? true : false;
     break;
   case BLT:
     jump_pc = true;
-    jump_addr = (op1 <op2) ? (pc + offset) : pc + 4;
+    jump_addr = (op1 < op2) ? (pc + offset) : pc + 4;
+    this->branching = (op1 < op2) ? true : false;
     break;
   case BGE:
     jump_pc = true;
     jump_addr = (op1 >= op2) ? (pc + offset) : pc + 4;
+    this->branching = (op1 >= op2) ? true : false;
     break;
   case BLTU:
     jump_pc = true;
     jump_addr = (op1_unsigned < op2_unsigned) ? (pc + offset) : pc + 4;
+    this->branching = (op1_unsigned < op2_unsigned) ? true : false;
     break;
   case BGEU:
     jump_pc = true;
     jump_addr = (op1_unsigned >= op2_unsigned) ? (pc + offset) : pc + 4;
+    this->branching = (op1_unsigned >= op2_unsigned) ? true : false;
     break;
   
 //load 5
@@ -877,14 +884,17 @@ void Simulator::excecute() {
   this->e_reg_new.pc=pc;
   this->e_reg_new.inst=instruction_name;
   this->e_reg_new.mem_len=byte_len;
-  this->e_reg_new.op1=this->d_reg.op1;
-  this->e_reg_new.op2=this->d_reg.op2;
+  this->e_reg_new.op1=op1;
+  this->e_reg_new.op2=op2;
   this->e_reg_new.out=output;
   this->e_reg_new.read_signed_mem   = read_signed_mem;
   this->e_reg_new.read_unsigned_mem = read_unsigned_mem;
   this->e_reg_new.write_mem = write_mem;
   this->e_reg_new.write_reg = write_reg;
-  this->e_reg_new.rd_ID=this->d_reg.rd_ID;
+  this->e_reg_new.rs1_ID  = this->d_reg.rs1_ID;
+  this->e_reg_new.rs2_ID  = this->d_reg.rs2_ID;
+  this->e_reg_new.rd_ID   = this->d_reg.rd_ID;
+  this->e_reg_new.offset  = this->d_reg.offset;
   if (jump_pc){
     this->e_reg_new.jump_addr= jump_addr;
     this->e_reg_new.jump_pc= jump_pc;
@@ -893,32 +903,57 @@ void Simulator::excecute() {
 
 // printf("dop1 %d dop2 %d erd %d \n",this->d_reg_new.rs1_ID,this->d_reg_new.rs1_ID,this->e_reg_new.rd_ID);
 
-//   // if((this->d_reg_new.rs1_ID==this->e_reg_new.rd_ID)||(this->d_reg_new.rs2_ID==this->e_reg_new.rd_ID)){
-//     // this->f_reg={};
-//     // this->d_reg={};
-//     this->f_reg.stall = 2;
-//     this->d_reg.stall = 2;
-//     this->pc=this->pc-8;
-  // }
+  if((pipeline_mode)&&
+  ((this->d_reg_new.rs1_ID==this->e_reg_new.rd_ID)||
+  (this->d_reg_new.rs2_ID==this->e_reg_new.rd_ID))&&
+ (!isExeStore(this->e_reg_new.inst))&&
+ (this->e_reg_new.rd_ID!=0))
+  {
+    printf("Register hazards\n");
     
+    this->pc = this->pc - 4;
+    this->f_reg.stall = 4;
+    this->d_reg.stall = 4;
+  }
 
+    if((pipeline_mode)&&(isExeJump(this->e_reg_new.inst))){
+    printf("Flushing\n");
+    flush_pipe();
+    this->f_reg.stall = 4;
+    this->d_reg.stall = 4;
 
+  }
 
-
-
-
+  if((pipeline_mode)&&(isExeBranch(this->e_reg_new.inst))&&this->branching){
+    printf("Flushing\n");
+    flush_pipe();
+    this->f_reg.stall = 4;
+    this->d_reg.stall = 4;
+    // this->d_reg.bubble = true;
+    this->branching=false;
+  }
+    
   
 }
+
+void Simulator::flush_pipe(){
+  f_reg = {};
+  d_reg = {};
+  f_reg_new = {};
+  d_reg_new = {};  
+  }
 
 // memory access, deal with bubble and stall
 void Simulator::memory_access() {
 
-  // if (this->e_reg.stall>0) {printf("memory access stalled\n");return;}
+  if (this->e_reg.stall>0) {printf("memory access stalled\n");return;}
 
-  // if (this->e_reg.bubble) {
-  //   printf("m_reg bubbled by e_reg\n");
-  //   this->m_reg_new.bubble = true;
-  //   return; }
+  if (this->e_reg.bubble) {
+    printf("m_reg bubbled by e_reg\n");
+    this->m_reg_new.bubble = true;
+    return; }
+  
+  if(!this->e_reg.pc)return;
 
   uint32_t pc = this->e_reg.pc;
   Instruction instruction_name = this->e_reg.inst;
@@ -1008,8 +1043,8 @@ void Simulator::memory_access() {
     this->m_reg_new.jump_pc= e_reg.jump_pc;
   }
   
-  // this->m_reg_new.stall = false;
-  // this->m_reg_new.bubble = false;
+  this->m_reg_new.stall = 0;
+  this->m_reg_new.bubble = false;
 
   // if(pc == this->breakpoint){
   //   printf("Memory access at 0x%08X\n",pc);
@@ -1018,14 +1053,18 @@ void Simulator::memory_access() {
   //   printf("WM %1d input  0x%08X at   0x%08X\n",write_mem,op1,output);
   //   printf("WR %1d input  0x%08X\n",write_reg,rd);
   //   printf("\n-------------Memo_Done-------------\n");}
-
+  this->m_reg_new.inst = this->e_reg.inst;
+  this->m_reg_new.offset  = this->e_reg.offset;
+  this->m_reg_new.rs1_ID  = this->e_reg.rs1_ID;
+  this->m_reg_new.rs2_ID  = this->e_reg.rs2_ID;
+  this->m_reg_new.rd_ID   = this->e_reg.rd_ID;
 }
 // write result to register, deal with bubble and stall
 // check for data hazard and forward data
 // update pipeline register
 void Simulator::write_back() {
-  // if (this->m_reg.stall>0) {printf("write access stalled\n");return;}
-  // if (this->m_reg.bubble) {printf("write bubbled by m_reg\n");return;}
+  if (this->m_reg.stall>0) {printf("write access stalled\n");return;}
+  if (this->m_reg.bubble) {printf("write bubbled by m_reg\n");return;}
 
   if (this->m_reg.write_reg){ this -> reg[this->m_reg.dest_reg] = this->m_reg.out;}
   if (this->m_reg.jump_pc){ this -> pc = this->m_reg.jump_addr;}
@@ -1076,14 +1115,14 @@ void Simulator::printRegAll(){
   printf("---------Previous Registers-------------New Registers-----------\n");
   
   for (int i=0; i<32;i++) {
-    std::string str = instNumToString(i);
+    std::string str = regNumToString(i);
     
   printf("x%-2d %-4s 0x%08X 0d%011d  -->  0x%08X 0d%011d\n",i,str.c_str(),this->old_reg[i],this->old_reg[i],this->reg[i],this->reg[i]);
   }
   printf("----------------------------------------------------------------\n");
 }
 
-std::string Simulator::instNumToString(int i)
+std::string Simulator::regNumToString(int i)
 {
   switch (i) {
         case 0: return "zero";
@@ -1121,6 +1160,52 @@ std::string Simulator::instNumToString(int i)
         default: return  "Unknown";
     }
 
+}
+
+std::string Simulator::instToString(Instruction inst) {
+    switch (inst) {
+        case LUI: return "LUI";
+        case AUIPC: return "AUIPC";
+        case JAL: return "JAL";
+        case JALR: return "JALR";
+        case BEQ: return "BEQ";
+        case BNE: return "BNE";
+        case BLT: return "BLT";
+        case BGE: return "BGE";
+        case BLTU: return "BLTU";
+        case BGEU: return "BGEU";
+        case LB: return "LB";
+        case LH: return "LH";
+        case LW: return "LW";
+        case LD: return "LD";
+        case LBU: return "LBU";
+        case LHU: return "LHU";
+        case SB: return "SB";
+        case SH: return "SH";
+        case SW: return "SW";
+        case SD: return "SD";
+        case ADDI: return "ADDI";
+        case SLTI: return "SLTI";
+        case SLTIU: return "SLTIU";
+        case XORI: return "XORI";
+        case ORI: return "ORI";
+        case ANDI: return "ANDI";
+        case SLLI: return "SLLI";
+        case SRLI: return "SRLI";
+        case SRAI: return "SRAI";
+        case ADD: return "ADD";
+        case SUB: return "SUB";
+        case SLL: return "SLL";
+        case SLT: return "SLT";
+        case SLTU: return "SLTU";
+        case XOR: return "XOR";
+        case SRL: return "SRL";
+        case SRA: return "SRA";
+        case OR: return "OR";
+        case AND: return "AND";
+        case ECALL: return "ECALL";
+        default: return "UNKNOWN";
+    }
 }
 
 void Simulator::error(const std::string& message,uint32_t addr){
@@ -1325,17 +1410,17 @@ void Simulator::pipelineSingleStep(){
 
   std::string input;
   this->breakpoint = 0;
-  this->f_reg.bubble = true;
-  this->d_reg.bubble = true;
-  this->e_reg.bubble = true;
-  this->m_reg.bubble = true;
 
+  this->f_reg.bubble=true;
+  this->d_reg.bubble=true;
+  this->e_reg.bubble=true;
+  this->m_reg.bubble=true;
 
 do {
-    // printf("enter [q]         - quit           | [c]          - continue\n");
-    // printf("enter [s]         - print stack    | [nothing]    - step command\n");
-    // printf("enter [b 0x100e0] - set breakpoint | [lw 0x100e0] - get 32-bit stored\n");
-    // printf("----------------------------------------------------------------\n");
+//     printf("enter [q]         - quit           | [c]          - continue\n");
+//     printf("enter [s]         - print stack    | [nothing]    - step command\n");
+//     printf("enter [b 0x100e0] - set breakpoint | [lw 0x100e0] - get 32-bit stored\n");
+//     printf("----------------------------------------------------------------\n");
     
     std::getline(std::cin, input);
 
@@ -1404,11 +1489,12 @@ do {
 
       
       // uint32_t currentPC = this->pc;
-      // copyReg();
+      copyReg();
       copyRegBuffer();
 
 
       command_line = "";
+      
       this->fetch();
       this->decode();
       this->excecute();
@@ -1417,31 +1503,23 @@ do {
 
       printRegAll();
       // printf("0x%08X",this->reg[gp]);
-
-      printf("after 5-stage \n");
+      printf("after 5-stage\n");
       printStageAll();
-      if(f_reg.stall==0)this->f_reg=this->f_reg_new;
-      else if (f_reg.stall > 0) {
-        this->f_reg.stall --;}
-      else {error("fReg stall is negative 666 ...",this->f_reg.pc);}
 
-      if(d_reg.stall==0)this->d_reg=this->d_reg_new;
-      else if (d_reg.stall > 0) {
-        this->d_reg.stall --;}
-      else {error("dReg stall is negative 666 ...",this->d_reg.pc);}
-
+      if(f_reg.stall) this->f_reg.stall--;
+      if(!f_reg.stall) this->f_reg = this->f_reg_new;
+      if(d_reg.stall) this->d_reg.stall--;
+      if(!d_reg.stall) this->d_reg = this->d_reg_new;
       this->e_reg=this->e_reg_new;
       this->m_reg=this->m_reg_new;
 
-      printf("after reg refresh \n");
-      printStageAll();
-
-      this->f_reg_new = {};
-      this->d_reg_new = {};
+      // this->d_reg_new = {};
       this->e_reg_new = {};
       this->m_reg_new = {};
-      printf("after reg new refresh \n");
+
+      printf("after reg refresh\n");
       printStageAll();
+
     }
 
     else if (input == "inst") { //get the fetched instruction binary
@@ -1460,65 +1538,95 @@ do {
 }
 
 void Simulator::printStageAll(){
-  printf("       PC          #stall  PC          #stall\n");
-  // printf("fNReg: 0x%08X  0b%-2d >> 0x%08X  0b%-2d\n",f_reg_new_copy.pc,f_reg_new_copy.stall,f_reg_new.pc,f_reg_new.stall);
-  // printf("fReg : 0x%08X  0b%-2d >> 0x%08X  0b%-2d\n",f_reg_copy.pc,f_reg_copy.stall,f_reg.pc,f_reg.stall);
-  // printf("dNReg: 0x%08X  0b%-2d >> 0x%08X  0b%-2d\n",d_reg_new_copy.pc,d_reg_new_copy.stall,d_reg_new.pc,d_reg_new.stall);
-  // printf("dReg : 0x%08X  0b%-2d >> 0x%08X  0b%-2d\n",d_reg_copy.pc,d_reg_copy.stall,d_reg.pc,d_reg.stall);
-  // printf("eNReg: 0x%08X  0b%-2d >> 0x%08X  0b%-2d\n",e_reg_new_copy.pc,e_reg_new_copy.stall,e_reg_new.pc,e_reg_new.stall);
-  // printf("eReg : 0x%08X  0b%-2d >> 0x%08X  0b%-2d\n",e_reg_copy.pc,e_reg_copy.stall,e_reg.pc,e_reg.stall);
-  // printf("mNReg: 0x%08X  0b%-2d >> 0x%08X  0b%-2d\n",m_reg_new_copy.pc,m_reg_new_copy.stall,m_reg_new.pc,m_reg_new.stall);
-  // printf("mReg : 0x%08X  0b%-2d >> 0x%08X  0b%-2d\n",m_reg_copy.pc,m_reg_copy.stall,m_reg.pc,m_reg.stall);
-  printf("fNReg: 0x%08X  0b%-2d\n",f_reg_new.pc,f_reg_new.stall);
-  printf("fReg : 0x%08X  0b%-2d\n",f_reg.pc,f_reg.stall);
-  printf("dNReg: 0x%08X  0b%-2d\n",d_reg_new.pc,d_reg_new.stall);
-  printf("dReg : 0x%08X  0b%-2d\n",d_reg.pc,d_reg.stall);
-  printf("eNReg: 0x%08X  0b%-2d\n",e_reg_new.pc,e_reg_new.stall);
-  printf("eReg : 0x%08X  0b%-2d\n",e_reg.pc,e_reg.stall);
-  printf("mNReg: 0x%08X  0b%-2d\n",m_reg_new.pc,m_reg_new.stall);
-  printf("mReg : 0x%08X  0b%-2d\n",m_reg.pc,m_reg.stall);
+  printf("       PC          Stall Bubble  inst  rd    rs1   rs2   offset\n");
+  printf("fNReg: 0x%08X  0b%-2d  0b%-2d\n",f_reg_new.pc,f_reg_new.stall,f_reg_new.bubble);
+  printf("fReg : 0x%08X  0b%-2d  0b%-2d\n",f_reg.pc,f_reg.stall,f_reg.bubble);
+  printf("dNReg: 0x%08X  0b%-2d  0b%-2d    %-5s %-5s %-5s %-5s 0x%08X\n",
+    d_reg_new.pc,d_reg_new.stall,d_reg_new.bubble,
+    instToString(this->d_reg_new.inst).c_str(),
+    regNumToString(this->d_reg_new.rd_ID).c_str(),
+    regNumToString(this->d_reg_new.rs1_ID).c_str(),
+    regNumToString(this->d_reg_new.rs2_ID).c_str(),
+    this->d_reg_new.offset);
+
+  printf("dReg : 0x%08X  0b%-2d  0b%-2d    %-5s %-5s %-5s %-5s 0x%08X\n",
+    d_reg.pc,d_reg.stall,d_reg.bubble,
+    instToString(this->d_reg.inst).c_str(),
+    regNumToString(this->d_reg.rd_ID).c_str(),
+    regNumToString(this->d_reg.rs1_ID).c_str(),
+    regNumToString(this->d_reg.rs2_ID).c_str(),
+    this->d_reg.offset);
+
+  printf("eNReg: 0x%08X  0b%-2d  0b%-2d    %-5s %-5s %-5s %-5s  0x%08X\n",
+    e_reg_new.pc,e_reg_new.stall,e_reg_new.bubble,
+    instToString(this->e_reg_new.inst).c_str(),
+    regNumToString(this->e_reg_new.rd_ID).c_str(),
+    regNumToString(this->e_reg_new.rs1_ID).c_str(),
+    regNumToString(this->e_reg_new.rs2_ID).c_str(),
+    this->e_reg_new.offset);
+
+  printf("eReg : 0x%08X  0b%-2d  0b%-2d    %-5s %-5s %-5s %-5s  0x%08X\n",
+    e_reg.pc,e_reg.stall,e_reg.bubble,
+    instToString(this->e_reg.inst).c_str(),
+    regNumToString(this->e_reg.rd_ID).c_str(),
+    regNumToString(this->e_reg.rs1_ID).c_str(),
+    regNumToString(this->e_reg.rs2_ID).c_str(),
+    this->e_reg.offset);
+
+  printf("mNReg: 0x%08X  0b%-2d  0b%-2d    %-5s %-5s %-5s %-5s  0x%08X\n",
+    m_reg_new.pc,m_reg_new.stall,m_reg_new.bubble,
+    instToString(this->m_reg_new.inst).c_str(),
+    regNumToString(this->m_reg_new.rd_ID).c_str(),
+    regNumToString(this->m_reg_new.rs1_ID).c_str(),
+    regNumToString(this->m_reg_new.rs2_ID).c_str(),
+    this->m_reg_new.offset);
+
+  printf("mReg : 0x%08X  0b%-2d  0b%-2d    %-5s %-5s %-5s %-5s  0x%08X\n",
+    m_reg.pc,m_reg.stall,m_reg.bubble,
+    instToString(this->m_reg.inst).c_str(),
+    regNumToString(this->m_reg.rd_ID).c_str(),
+    regNumToString(this->m_reg.rs1_ID).c_str(),
+    regNumToString(this->m_reg.rs2_ID).c_str(),
+    this->m_reg.offset);
+
 printf("-----------------------------------\n");}
 
 void Simulator::pipeloop(){
   // //  check stack overflow
-  this->reg[zero]=0; 
+   this->reg[zero]=0; 
     // check stack overflow
-  if (reg[sp]<(this->stack_base-this->max_stack_size)){
-    printf("-----------------------------------\n");
-    printf("sp : 0x%X\n",this->reg[sp]);
-    error("stack overflow - sp is under 0x0x7FC00000",this->pc);}
+      if (reg[sp]<(this->stack_base-this->max_stack_size)){
+        printf("-----------------------------------\n");
+        printf("sp : 0x%X\n",this->reg[sp]);
+        error("stack overflow - sp is under 0x0x7FC00000",this->pc);}
+
+      
+      // uint32_t currentPC = this->pc;
+      copyReg();
+      copyRegBuffer();
 
 
-  command_line = "";
-  // uint32_t currentPC = this->pc;
-  copyReg();
-
-  
-  this->fetch();
-  this->decode();
-  this->excecute();
-  this->memory_access();
-  this->write_back();
-
-  // printStageAll();
-  // printRegAll();
-
-  if(f_reg.stall==0)this->f_reg=this->f_reg_new;
-  else this->f_reg.stall --;
-
-  if(d_reg.stall==0)this->d_reg=this->d_reg_new;
-  else this->d_reg.stall --;
+      command_line = "";
+      
+      this->fetch();
+      this->decode();
+      this->excecute();
+      this->memory_access();
+      this->write_back();
 
 
-  this->e_reg=this->e_reg_new;
-  this->m_reg=this->m_reg_new;
-  //flag refresh
-  this->f_reg_new = {};
-  this->d_reg_new = {};
-  this->e_reg_new = {};
-  this->m_reg_new = {};
+      if(f_reg.stall) this->f_reg.stall--;
+      if(!f_reg.stall) this->f_reg = this->f_reg_new;
+      if(d_reg.stall) this->d_reg.stall--;
+      if(!d_reg.stall) this->d_reg = this->d_reg_new;
+      this->e_reg=this->e_reg_new;
+      this->m_reg=this->m_reg_new;
+
+      // this->d_reg_new = {};
+      this->e_reg_new = {};
+      this->m_reg_new = {};
+
 }
-
 
 void Simulator::copyRegBuffer(){
   this->f_reg_new_copy =this->f_reg_new;
@@ -1531,7 +1639,17 @@ void Simulator::copyRegBuffer(){
   this->m_reg_copy =this->m_reg;
 }
 
+bool Simulator::isExeBranch(Instruction inst){
+  return (inst == BEQ||inst == BGE||
+  inst == BGEU||inst == BLT||
+  inst == BLTU||inst == BNE);
+}
 
 
+bool Simulator::isExeJump(Instruction inst){
+  return (inst == JAL||inst == JALR);
+}
 
-
+bool Simulator::isExeStore(Instruction inst){
+  return (inst == SB||inst == SH||inst == SW);
+}

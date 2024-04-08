@@ -103,3 +103,6 @@ enter [lw 0x100e0] - get 32-bit stored
 
 - RV manual, spec 2.2  
 <https://riscv.org/wp-content/uploads/2017/05/riscv-spec-v2.2.pdf>
+
+## P.S. Pipeline is not working. 
+*C++ is not HDL afterall, and I do not wanna debug anymore :)*
