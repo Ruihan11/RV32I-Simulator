@@ -23,7 +23,7 @@ compare_files() {
 
 sum=0
 for file in ./test-release/*.riscv; do
-    ./build/Simulator $file -p> ${file%.riscv}.out
+    ./build/Simulator $file> ${file%.riscv}.out
     compare_files ${file%.riscv}.out ${file%.riscv}.ref
     result=$?
     sum=$(($sum + $result))

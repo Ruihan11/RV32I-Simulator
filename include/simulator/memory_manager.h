@@ -4,7 +4,7 @@
 #include <cstdint>
 
 #include <elfio/elfio.hpp>
-
+#include <../include/simulator/Cache.h>
 
 class MemoryManager {
 public:
@@ -22,12 +22,13 @@ public:
   bool set_int(uint32_t addr, uint32_t val, uint32_t* cycles = nullptr);
 
   void error(const std::string& message,uint32_t addr);
+
 private:
   uint32_t get_first_entry_id(uint32_t addr);
   uint32_t get_second_entry_id(uint32_t addr);
   uint32_t get_page_offset(uint32_t addr);
   bool is_addr_exit(uint32_t addr);
-
+  
   uint8_t** memory[1024];
   uint32_t access_latency;
 };

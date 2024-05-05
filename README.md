@@ -2,7 +2,7 @@
 
 ## *ELF Compilation* 
   
-*Configure your riscv tool-chain- non-supportive of others (but you can expand this simulation for other extensions)*
+*Configure your riscv tool-chain- non-supportive of others (but you can expand this simulator for other extensions)*
 
 ```
 # go to your riscv gnu tool-chain directory
@@ -98,7 +98,7 @@ enter [lw 0x100e0] - get 32-bit stored
 - ELFIO repo, detailed reading process  
 <https://github.com/serge1/ELFIO/tree/main>
 
-- RV chinese manual, very useful and detail instruction, but chinese only  
+- RV chinese manual, very useful and detail instruction  
 <http://riscvbook.com/chinese/RISC-V-Reader-Chinese-v2p1.pdf>
 
 - RV manual, spec 2.2  

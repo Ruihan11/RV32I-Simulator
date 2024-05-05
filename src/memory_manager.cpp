@@ -127,3 +127,5 @@ void MemoryManager::error(const std::string& message,uint32_t addr){
   std::cerr << "Error : " << message << std::endl;
     exit(EXIT_FAILURE);
 }
+
+// void MemoryManager::setCache(Cache *cache) { this->cache = cache; }

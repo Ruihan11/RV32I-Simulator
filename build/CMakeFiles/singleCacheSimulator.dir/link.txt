@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -Wall CMakeFiles/singleCacheSimulator.dir/src/mainSingleCache.cpp.o CMakeFiles/singleCacheSimulator.dir/src/memory_manager.cpp.o -o singleCacheSimulator 

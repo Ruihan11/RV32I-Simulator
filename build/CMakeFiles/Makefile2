@@ -63,7 +63,7 @@ CMAKE_BINARY_DIR = /home/ruihan11/Documents/csc3050/P2/RV32I-Simulator/build
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/Simulator.dir/all
+all: CMakeFiles/singleCacheSimulator.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -71,34 +71,34 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/Simulator.dir/clean
+clean: CMakeFiles/singleCacheSimulator.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/Simulator.dir
+# Target rules for target CMakeFiles/singleCacheSimulator.dir
 
 # All Build rule for target.
-CMakeFiles/Simulator.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ruihan11/Documents/csc3050/P2/RV32I-Simulator/build/CMakeFiles --progress-num=1,2,3,4 "Built target Simulator"
-.PHONY : CMakeFiles/Simulator.dir/all
+CMakeFiles/singleCacheSimulator.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/singleCacheSimulator.dir/build.make CMakeFiles/singleCacheSimulator.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/singleCacheSimulator.dir/build.make CMakeFiles/singleCacheSimulator.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ruihan11/Documents/csc3050/P2/RV32I-Simulator/build/CMakeFiles --progress-num=1,2,3 "Built target singleCacheSimulator"
+.PHONY : CMakeFiles/singleCacheSimulator.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/Simulator.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ruihan11/Documents/csc3050/P2/RV32I-Simulator/build/CMakeFiles 4
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/Simulator.dir/all
+CMakeFiles/singleCacheSimulator.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ruihan11/Documents/csc3050/P2/RV32I-Simulator/build/CMakeFiles 3
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/singleCacheSimulator.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/ruihan11/Documents/csc3050/P2/RV32I-Simulator/build/CMakeFiles 0
-.PHONY : CMakeFiles/Simulator.dir/rule
+.PHONY : CMakeFiles/singleCacheSimulator.dir/rule
 
 # Convenience name for target.
-Simulator: CMakeFiles/Simulator.dir/rule
-.PHONY : Simulator
+singleCacheSimulator: CMakeFiles/singleCacheSimulator.dir/rule
+.PHONY : singleCacheSimulator
 
 # clean rule for target.
-CMakeFiles/Simulator.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/clean
-.PHONY : CMakeFiles/Simulator.dir/clean
+CMakeFiles/singleCacheSimulator.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/singleCacheSimulator.dir/build.make CMakeFiles/singleCacheSimulator.dir/clean
+.PHONY : CMakeFiles/singleCacheSimulator.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

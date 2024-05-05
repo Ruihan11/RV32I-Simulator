@@ -8,9 +8,16 @@ set(CMAKE_CXX_FLAGS "-O3 -Wall")
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
+# add_executable(
+#     Simulator
+#     src/main.cpp
+#     src/simulator.cpp
+#     src/memory_manager.cpp
+# )
+
 add_executable(
-    Simulator
-    src/main.cpp
-    src/simulator.cpp
+    singleCacheSimulator
+    # src/Cache.cpp
+    src/mainSingleCache.cpp
     src/memory_manager.cpp
 )

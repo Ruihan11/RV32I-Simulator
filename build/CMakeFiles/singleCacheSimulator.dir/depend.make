@@ -1,2 +1,2 @@
-# Empty dependencies file for Simulator.
+# Empty dependencies file for singleCacheSimulator.
 # This may be replaced when dependencies are built.

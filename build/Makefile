@@ -117,48 +117,48 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named Simulator
+# Target rules for targets named singleCacheSimulator
 
 # Build rule for target.
-Simulator: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Simulator
-.PHONY : Simulator
+singleCacheSimulator: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 singleCacheSimulator
+.PHONY : singleCacheSimulator
 
 # fast build rule for target.
-Simulator/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/build
-.PHONY : Simulator/fast
+singleCacheSimulator/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/singleCacheSimulator.dir/build.make CMakeFiles/singleCacheSimulator.dir/build
+.PHONY : singleCacheSimulator/fast
 
-src/main.o: src/main.cpp.o
-.PHONY : src/main.o
+src/mainSingleCache.o: src/mainSingleCache.cpp.o
+.PHONY : src/mainSingleCache.o
 
 # target to build an object file
-src/main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/src/main.cpp.o
-.PHONY : src/main.cpp.o
+src/mainSingleCache.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/singleCacheSimulator.dir/build.make CMakeFiles/singleCacheSimulator.dir/src/mainSingleCache.cpp.o
+.PHONY : src/mainSingleCache.cpp.o
 
-src/main.i: src/main.cpp.i
-.PHONY : src/main.i
+src/mainSingleCache.i: src/mainSingleCache.cpp.i
+.PHONY : src/mainSingleCache.i
 
 # target to preprocess a source file
-src/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/src/main.cpp.i
-.PHONY : src/main.cpp.i
+src/mainSingleCache.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/singleCacheSimulator.dir/build.make CMakeFiles/singleCacheSimulator.dir/src/mainSingleCache.cpp.i
+.PHONY : src/mainSingleCache.cpp.i
 
-src/main.s: src/main.cpp.s
-.PHONY : src/main.s
+src/mainSingleCache.s: src/mainSingleCache.cpp.s
+.PHONY : src/mainSingleCache.s
 
 # target to generate assembly for a file
-src/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/src/main.cpp.s
-.PHONY : src/main.cpp.s
+src/mainSingleCache.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/singleCacheSimulator.dir/build.make CMakeFiles/singleCacheSimulator.dir/src/mainSingleCache.cpp.s
+.PHONY : src/mainSingleCache.cpp.s
 
 src/memory_manager.o: src/memory_manager.cpp.o
 .PHONY : src/memory_manager.o
 
 # target to build an object file
 src/memory_manager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/src/memory_manager.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/singleCacheSimulator.dir/build.make CMakeFiles/singleCacheSimulator.dir/src/memory_manager.cpp.o
 .PHONY : src/memory_manager.cpp.o
 
 src/memory_manager.i: src/memory_manager.cpp.i
@@ -166,7 +166,7 @@ src/memory_manager.i: src/memory_manager.cpp.i
 
 # target to preprocess a source file
 src/memory_manager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/src/memory_manager.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/singleCacheSimulator.dir/build.make CMakeFiles/singleCacheSimulator.dir/src/memory_manager.cpp.i
 .PHONY : src/memory_manager.cpp.i
 
 src/memory_manager.s: src/memory_manager.cpp.s
@@ -174,32 +174,8 @@ src/memory_manager.s: src/memory_manager.cpp.s
 
 # target to generate assembly for a file
 src/memory_manager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/src/memory_manager.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/singleCacheSimulator.dir/build.make CMakeFiles/singleCacheSimulator.dir/src/memory_manager.cpp.s
 .PHONY : src/memory_manager.cpp.s
-
-src/simulator.o: src/simulator.cpp.o
-.PHONY : src/simulator.o
-
-# target to build an object file
-src/simulator.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/src/simulator.cpp.o
-.PHONY : src/simulator.cpp.o
-
-src/simulator.i: src/simulator.cpp.i
-.PHONY : src/simulator.i
-
-# target to preprocess a source file
-src/simulator.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/src/simulator.cpp.i
-.PHONY : src/simulator.cpp.i
-
-src/simulator.s: src/simulator.cpp.s
-.PHONY : src/simulator.s
-
-# target to generate assembly for a file
-src/simulator.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Simulator.dir/build.make CMakeFiles/Simulator.dir/src/simulator.cpp.s
-.PHONY : src/simulator.cpp.s
 
 # Help Target
 help:
@@ -209,16 +185,13 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... Simulator"
-	@echo "... src/main.o"
-	@echo "... src/main.i"
-	@echo "... src/main.s"
+	@echo "... singleCacheSimulator"
+	@echo "... src/mainSingleCache.o"
+	@echo "... src/mainSingleCache.i"
+	@echo "... src/mainSingleCache.s"
 	@echo "... src/memory_manager.o"
 	@echo "... src/memory_manager.i"
 	@echo "... src/memory_manager.s"
-	@echo "... src/simulator.o"
-	@echo "... src/simulator.i"
-	@echo "... src/simulator.s"
 .PHONY : help
 
 
